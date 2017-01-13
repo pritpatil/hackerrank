@@ -1,0 +1,64 @@
+---
+- name: Download Tomcat
+  get_url: url=http://mirror.symnds.com/software/Apache/tomcat/tomcat-7/v7.0.73/bin/apache-tomcat-7.0.73.tar.gz dest=/opt/apache-tomcat-7.0.73.tar.gz
+
+- name: create tomcat folders
+  file: dest={{ item }} state=directory mode=0755
+  with_items:
+    - /opt/tomcat01
+    - /opt/tomcat02
+
+- name: Extract archive for tomcat01
+  unarchive: src=/opt/apache-tomcat-7.0.73.tar.gz dest=/opt/tomcat01/
+
+- name: Extract archive for tomcat02
+  unarchive: src=/opt/apache-tomcat-7.0.73.tar.gz dest=/opt/tomcat02/
+
+- name: creating symlink for tomcat01
+  file: src=/opt/tomcat01/apache-tomcat-7.0.73 dest=/usr/share/tomcat01 state=link
+
+- name: creating symlink for tomcat02
+  file: src=/opt/tomcat02/apache-tomcat-7.0.73 dest=/usr/share/tomcat02 state=link
+
+- name: Add group "tomcat"
+  group: name=tomcat
+
+- name: Add user "tomcat"
+  user: name=tomcat group=tomcat
+
+- name: Configure Tomcat02 server
+  template: src=server_tomcat02.j2 dest=/usr/share/tomcat02/conf/server.xml
+
+- name: Configure Tomcat01 server
+  template: src=server_tomcat01.j2 dest=/usr/share/tomcat01/conf/server.xml
+
+- name: configure setenv for tomcat01
+  template: src=setenv_sh.j2 dest=/usr/share/tomcat01/bin/setenv.sh mode=0755 
+
+- name: configure setenv for tomcat02
+  template: src=setenv_sh.j2 dest=/usr/share/tomcat02/bin/setenv.sh mode=0755 
+
+- name: Change ownership of Tomcat01 installation
+  file: path=/usr/share/tomcat01/ owner=tomcat group=tomcat state=directory recurse=yes
+
+- name: Change ownership of Tomcat02 installation
+  file: path=/usr/share/tomcat02/ owner=tomcat group=tomcat state=directory recurse=yes
+
+- name: Install Tomcat01 init script
+  template: src=tomcat01-initscript.sh dest=/etc/init.d/tomcat01 mode=0755
+
+- name: Install Tomcat02 init script
+  template: src=tomcat02-initscript.sh dest=/etc/init.d/tomcat02 mode=0755
+
+- name: Start Tomcat01
+  service: name=tomcat01 state=restarted enabled=yes
+
+- name: Start Tomcat02
+  service: name=tomcat02 state=restarted enabled=yes
+
+- name: wait for tomcat01 to start
+  wait_for: host=0.0.0.0 port="{{ tomcat_01_http_port }}" delay=10
+
+- name: wait for tomcat02 to start
+  wait_for: host=0.0.0.0 port="{{ tomcat_02_http_port }}" delay=10
+

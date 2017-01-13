@@ -1,0 +1,13 @@
+---
+
+- name: Add sun jdk repo
+  apt_repository: repo='ppa:webupd8team/java'
+
+- name: Accept the license
+  action: raw sudo echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
+
+- name: Install sun JDK8
+  apt: pkg="{{ item }}"  update_cache=yes state=present
+  with_items:
+    - oracle-java8-installer
+    - oracle-java8-set-default

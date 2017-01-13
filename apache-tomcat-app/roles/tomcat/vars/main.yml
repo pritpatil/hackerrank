@@ -1,0 +1,4 @@
+java_home: /usr/lib/jvm/java-8-oracle
+tomcat_01_http_port: 8080
+tomcat_02_http_port: 8081
+

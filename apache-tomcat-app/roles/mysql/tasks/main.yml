@@ -1,0 +1,20 @@
+---
+
+- name: installing mysql packages
+  apt: name={{ item }} update_cache=yes  state=present
+  with_items:
+    - mysql-server-5.6
+    - mysql-client-5.6
+    - python-mysqldb
+
+- name: enabling mysql service for autostart on boot
+  service: name=mysql state=started enabled=true
+
+- name: setting up root password
+  mysql_user: name=root host=localhost password= "{{ root_db_password }}"
+
+- name: removing anonymous users 
+  mysql_user: login_user=root login_password= "{{ root_db_password }}"  name='' host=localhost state=absent
+
+- name: remove the test database
+  mysql_db: login_user=root login_password= "{{ root_db_password }}" name=test state=absent

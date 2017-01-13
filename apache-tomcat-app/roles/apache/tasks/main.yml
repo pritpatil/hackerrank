@@ -1,0 +1,10 @@
+---
+- name: installing apache2 package
+  apt: name=apache2 update_cache=yes state=present
+
+- name: enabling apache2 service for autostart on boot
+  service: name=apache2 state=started enabled=yes
+
+
+
+

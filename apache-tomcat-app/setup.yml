@@ -1,0 +1,11 @@
+---
+
+- name: setting up stack
+  hosts: all
+  become: true
+  roles:
+    - sun_java
+    - mysql
+    - tomcat
+    - apache
+

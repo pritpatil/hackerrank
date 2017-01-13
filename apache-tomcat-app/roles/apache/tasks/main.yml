@@ -1,10 +1,38 @@
 ---
+- name: adding apache2 apt repository
+  apt_repository: repo={{ item }} state=present
+  with_items:
+    - deb http://archive.ubuntu.com/ubuntu precise main restricted universe
+    - deb http://archive.ubuntu.com/ubuntu precise-updates main restricted universe
+    - deb http://security.ubuntu.com/ubuntu precise-security main restricted universe multiverse
+
 - name: installing apache2 package
-  apt: name=apache2 update_cache=yes state=present
+  apt: name={{ item }} update_cache=yes state=present
+  with_items: 
+    - apache2=2.2.22-1ubuntu1.11
+    - apache2.2-common=2.2.22-1ubuntu1.11
+    - apache2-mpm-worker=2.2.22-1ubuntu1.11
+    - apache2.2-bin=2.2.22-1ubuntu1.11 
+
+
+- name: enabling proxy modules for loadbalancing
+  apache2_module: name={{ item }} state=present
+  with_items:
+    - proxy
+    - proxy_http
+    - proxy_ajp
+    - proxy_balancer
+    - proxy_connect
+    - authz_host
 
 - name: enabling apache2 service for autostart on boot
   service: name=apache2 state=started enabled=yes
 
+- name: creating lb conf 
+  template: src=lb.conf.j2 dest=/etc/apache2/sites-available/lb.conf
 
+- name: enabling lb.conf
+  command: a2ensite lb.conf
 
-
+- name: reloading apache server
+  service: name=apache2 state=reloaded

@@ -1,0 +1,11 @@
+<Proxy balancer://lb>
+    BalancerMember http://0.0.0.0:8080/
+    BalancerMember http://0.0.0.0:8081/
+</Proxy>
+
+<VirtualHost *:80>
+    ServerName localhost
+    ErrorLog ${APACHE_LOG_DIR}/lb.error.log
+    CustomLog ${APACHE_LOG_DIR}/lb.access.log Combined
+    ProxyPass / balancer://lb/
+</VirtualHost>

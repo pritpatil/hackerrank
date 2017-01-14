@@ -18,7 +18,7 @@ Note: this playbook supports only ubuntu distribution and will require sudo acce
    
    ansible-playbook -i "localhost," -c local -K setup.yml  ( if sudo require password )
 
-4 Once deployment has been finished you can check the load balancing using sample application. http://localhost/LoginWebApp/
+4. Once deployment has been finished you can check the load balancing using sample application http://localhost/LoginWebApp/ .
 
-5. Additionaly you can also check the  load balancer status using http://localhost/balancer-manager
+5. Additionaly you can also check the  load balancer status using http://localhost/balancer-manager .
 

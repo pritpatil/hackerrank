@@ -10,11 +10,25 @@
 - name: enabling mysql service for autostart on boot
   service: name=mysql state=started enabled=true
 
-- name: setting up root password
-  mysql_user: name=root host=localhost password= "{{ root_db_password }}"
+- name: update mysql root password for all root accounts
+  mysql_user: name=root host={{ item }} password="{{ root_db_password }}"
+  with_items:
+   - "{{ ansible_hostname }}"
+   - 127.0.0.1
+   - ::1
+   - localhost
+  when: ansible_hostname != 'localhost' 
+
+- name: update mysql root password for all root accounts
+  mysql_user: name=root host={{ item }} password="{{ root_db_password }}"
+  with_items:
+   - 127.0.0.1
+   - ::1
+   - localhost
+  when: ansible_hostname == 'localhost' 
 
 - name: removing anonymous users 
-  mysql_user: login_user=root login_password= "{{ root_db_password }}"  name='' host=localhost state=absent
+  mysql_user: login_user=root login_password="{{ root_db_password }}"  name='' host=localhost state=absent
 
 - name: remove the test database
-  mysql_db: login_user=root login_password= "{{ root_db_password }}" name=test state=absent
+  mysql_db: login_user=root login_password="{{ root_db_password }}" name=test state=absent

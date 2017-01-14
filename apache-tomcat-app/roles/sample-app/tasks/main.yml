@@ -1,0 +1,21 @@
+---
+- name: updating mysql config to disable case sensitive
+  template: src=my.cnf.j2  dest=/etc/mysql/my.cnf
+
+- name: restarting mysql server
+  service: name=mysql state=restarted
+
+- name: creating mysql database for sample app
+  mysql_db: login_user=root login_password="{{ root_db_password }}" name=jwt state=present
+
+- name: copy sql script
+  copy: src=files/jwt.sql dest=/tmp/jwt.sql
+
+- name: creating table in jwt database
+  mysql_db: login_user=root login_password="{{ root_db_password }}" name=jwt state=import target=/tmp/jwt.sql
+
+- name: depoying sample web application to tomcat01
+  copy: src=files/LoginWebApp.war dest=/opt/tomcat01/apache-tomcat-7.0.73/webapps/LoginWebApp.war owner=tomcat group=tomcat
+
+- name: depoying sample web application to tomcat02
+  copy: src=files/LoginWebApp.war dest=/opt/tomcat02/apache-tomcat-7.0.73/webapps/LoginWebApp.war owner=tomcat group=tomcat
